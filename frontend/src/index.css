@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap');
+@import "tailwindcss";
+
+:root {
+  --bg-base: #060910;
+  --bg-surface: #0d1117;
+  --bg-elevated: #161b22;
+  --bg-overlay: #1c2333;
+  --border: #21262d;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted: #484f58;
+  --accent-red: #ff4444;
+  --accent-orange: #ff8c00;
+  --accent-yellow: #ffd700;
+  --accent-green: #39d353;
+  --accent-blue: #58a6ff;
+  --severity-critical: #ff2d2d;
+  --severity-high: #ff6b00;
+  --severity-medium: #ffd700;
+  --severity-low: #39d353;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,h2,h3,h4,h5,h6 { font-family: 'Syne', sans-serif; font-weight: 700; }
+code, .mono { font-family: 'DM Mono', monospace; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-surface); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.mapboxgl-ctrl-logo, .mapboxgl-ctrl-attrib { display: none !important; }
+
+.severity-critical { color: var(--severity-critical); background: rgba(255,45,45,0.15); }
+.severity-high { color: var(--severity-high); background: rgba(255,107,0,0.15); }
+.severity-medium { color: var(--severity-medium); background: rgba(255,215,0,0.15); }
+.severity-low { color: var(--severity-low); background: rgba(57,211,83,0.15); }
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.status-available { background: var(--accent-green); box-shadow: 0 0 6px var(--accent-green); }
+.status-busy { background: var(--accent-orange); box-shadow: 0 0 6px var(--accent-orange); }
+.status-offline { background: var(--text-muted); }
+
+.card-hover { transition: border-color 0.2s, transform 0.2s; }
+.card-hover:hover { border-color: var(--accent-blue); transform: translateY(-1px); }
+
+.glass { background: rgba(13,17,23,0.85); backdrop-filter: blur(12px); }
