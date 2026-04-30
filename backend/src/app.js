@@ -1,6 +1,5 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 
@@ -17,35 +16,43 @@ const app = express();
 app.use(helmet());
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
-// CORS — fixed to handle multiple origins and env variable correctly
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, Postman, curl)
-    if (!origin) return callback(null, true);
+// Manual CORS — handles all origins, preflight, and credentials
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigin = process.env.CORS_ORIGIN || '*';
 
-    const allowed = (process.env.CORS_ORIGIN || 'http://localhost:5173')
-      .split(',')
-      .map(o => o.trim());
-
-    if (allowed.includes('*') || allowed.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error(`CORS blocked: ${origin}`));
+  if (allowedOrigin === '*') {
+    res.header('Access-Control-Allow-Origin', '*');
+  } else {
+    const allowedList = allowedOrigin.split(',').map(o => o.trim());
+    if (origin && allowedList.includes(origin)) {
+      res.header('Access-Control-Allow-Origin', origin);
+      res.header('Vary', 'Origin');
     }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+  }
 
-// Handle preflight requests for all routes
-app.options('*', cors());
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
+  res.header('Access-Control-Allow-Credentials', 'true');
+
+  // Handle preflight
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+
+  next();
+});
 
 app.use(express.json());
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'ResQNet API', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'ok', 
+    service: 'ResQNet API', 
+    timestamp: new Date().toISOString(),
+    cors: process.env.CORS_ORIGIN || '*'
+  });
 });
 
 // Routes
@@ -71,7 +78,7 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`🚨 ResQNet API running on port ${PORT}`);
   console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🌐 CORS Origin: ${process.env.CORS_ORIGIN || 'http://localhost:5173'}`);
+  console.log(`🌐 CORS Origin: ${process.env.CORS_ORIGIN || '*'}`);
 });
 
 module.exports = app;
