@@ -26,7 +26,7 @@ export const CreateResourceModal = () => {
     }
   };
 
-  const activeIncidents = incidents.filter((i) => i.status === 'active');
+  const selectableIncidents = incidents.filter((i) => !['resolved', 'closed'].includes(i.status));
 
   return (
     <Modal title="Request Resources" onClose={() => closeModal('createResource')}>
@@ -34,7 +34,14 @@ export const CreateResourceModal = () => {
         {error && <p className="text-xs text-red-400 bg-red-400/10 border border-red-400/20 rounded px-3 py-2">{error}</p>}
         <Select label="Incident *" value={form.incident_id} onChange={set('incident_id')}>
           <option value="">Select incident...</option>
-          {activeIncidents.map((i) => <option key={i.id} value={i.id}>{i.title}</option>)}
+          {selectableIncidents.map((i) => (
+            <option key={i.id} value={i.id}>
+              {i.title} — {i.severity} / {i.status}{i.address ? ` — ${i.address}` : ''}
+            </option>
+          ))}
+          {selectableIncidents.length === 0 && (
+            <option value="" disabled>No incidents found — create one or run the demo seed SQL</option>
+          )}
         </Select>
         <div className="grid grid-cols-2 gap-3">
           <Select label="Resource Type *" value={form.resource_type} onChange={set('resource_type')}>
